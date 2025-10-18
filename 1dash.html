@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Arptron Beta Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        :root {
+            --bg-gradient: linear-gradient(45deg, #0f0c29, #302b63, #24243e);
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-primary: #e0e0e0;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            padding: 2rem;
+            animation: gradient 15s ease infinite;
+        }
+
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.1),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .beta-badge {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+        }
+
+        .card-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.75rem 0;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .highlight {
+            color: #78e08f;
+            font-weight: 500;
+        }
+
+        .star {
+            background: linear-gradient(45deg, #f9d423, #ff4e50);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            
+            .card {
+                padding: 1rem;
+            }
+        }
+      
+.skeleton-text {
+    width: 30%;
+    height: 25px;
+    border-radius: 5px;
+    background: linear-gradient(
+        90deg,
+        #4B4875 25%,
+        #312B60 50%,
+        #4B4875 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+}
+
+.skeleton-text.short {
+    width: 60%;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+        .container {
+            width: 100%;
+            height: 100%;
+            max-width: 1200px;
+            max-height: 800px;
+            margin: 0 auto;
+        }
+      
+      .title-container {
+  display: flex;
+  align-items: center;  /* Keep items aligned */
+  gap: 8px;  /* Space between title and button */
+}
+
+.copy {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  position: relative; /* Needed for tooltip positioning */
+}
+
+.copy-icon {
+  width: 24px;  /* Adjust icon size */
+  height: 24px;
+  margin-top: 9px;
+  user-select: none; /* Prevent text selection */
+    -webkit-user-drag: none; /* Prevent image drag in webkit browsers */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer */
+}
+
+/* Tooltip styling */
+.tooltip {
+  position: absolute;
+  bottom: 150%; /* Moves it above the button */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: black;
+  color: white;
+  padding: 5px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  pointer-events: none; /* Prevents interfering with button clicks */
+}
+
+.tooltip.show {
+  opacity: 1;
+}
+.logo {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    width: 80px; /* Adjust size if needed */
+    height: auto;
+    z-index: 1000; /* Ensures it stays on top */
+    user-select: none; /* Prevent text selection */
+    -webkit-user-drag: none; /* Prevent image drag in webkit browsers */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer */
+}
+
+
+
+    </style>
+</head>
+<body style="user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;">
+    <img  class="logo" src="https://cdn.discordapp.com/emojis/1341774123982127264.webp?size=96">
+  <div class="container">
+        <div id="skeleton1" class="skeleton-text"></div>
+      <div class="title-container">
+  <h1 id="arptronTitle">arptron_beta_0</h1>
+  <button id="copy" class="copy">
+    <img class="copy-icon" src="https://raw.githubusercontent.com/koo1140/random/refs/heads/main/1828249.png">
+    <span id="tooltip" class="tooltip">Copied!</span>
+  </button>
+</div>
+      <script>
+       document.getElementById("copy").addEventListener("click", function () {
+    const titleText = document.getElementById("arptronTitle").innerText;
+    const tooltip = document.getElementById("tooltip");
+
+    // Try to use the Clipboard API (modern browsers)
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(titleText).then(() => {
+            tooltip.classList.add("show");
+
+            // Hide tooltip after 1.5 seconds
+            setTimeout(() => {
+                tooltip.classList.remove("show");
+            }, 1500);
+        }).catch(err => {
+            console.error("Failed to copy: ", err);
+            fallbackCopyTextToClipboard(titleText, tooltip); // Fallback in case of failure
+        });
+    } else {
+        // Fallback for browsers that don't support Clipboard API
+        fallbackCopyTextToClipboard(titleText, tooltip);
+    }
+});
+
+function fallbackCopyTextToClipboard(text, tooltip) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    textArea.setSelectionRange(0, 99999); // For mobile devices
+    try {
+        document.execCommand('copy'); // Fallback method for older browsers
+        tooltip.classList.add("show");
+
+        // Hide tooltip after 1.5 seconds
+        setTimeout(() => {
+            tooltip.classList.remove("show");
+        }, 1500);
+    } catch (err) {
+        console.error("Fallback failed: ", err);
+    }
+    document.body.removeChild(textArea);
+}
+
+</script>
+
+        <div id="skeleton2" class="skeleton-text" style="height: 15px; margin-top: 5px; width: 25%;"></div>
+        <p id="experimentTag" class="highlight">experimentation-only</p>
+
+        <div class="card-grid">
+            <!-- Information Card -->
+            <div id="skeleton3" class="skeleton-text" style="height:200px; margin-top: 5px; width: 100%;"></div>
+            <div id="card1" class="card">
+                <div class="card-header">
+                    <h3>Overview</h3>
+                    <div class="badge beta-badge">BETA</div>
+                </div>
+                <div class="card-row">
+                    <span>Version</span>
+                    <span class="highlight">0.0.0</span>
+                </div>
+                <div class="card-row">
+                    <span>Tokenizer</span>
+                    <span class="highlight">gpt2</span>
+                </div>
+                <div class="card-row">
+                    <span>Size</span>
+                    <span class="highlight">486 MB</span>
+                </div>
+            </div>
+
+            <!-- Config Card -->
+            <div id="skeleton4" class="skeleton-text" style="height:200px; margin-top: 5px; width: 100%;"></div>
+            <div id="card2" class="card">
+                <div class="card-header">
+                    <h3>Performance</h3>
+                    <div class="star">⭐</div>
+                </div>
+                <div class="card-row">
+                    <span>Model Speed</span>
+                    <span class="highlight">Moderately Fast</span>
+                </div>
+                <div class="card-row">
+                    <span>Throughput</span>
+                    <span class="highlight">Low-throughput</span>
+                </div>
+                <div class="card-row">
+                    <span>Context window</span>
+                    <span class="highlight">1024 tokens</span>
+                </div>
+            </div>
+
+            <!-- Performance Card -->
+            <div id="skeleton5" class="skeleton-text" style="height:200px; margin-top: 5px; width: 100%;"></div>
+            <div id="card3" class="card">
+                <div class="card-header">
+                    <h3>Features</h3>
+                    <div class="star">🧠</div>
+                </div>
+                <div class="card-row">
+                    <span>Reasoning</span>
+                    <span class="highlight">Chain of Thoughts</span>
+                </div>
+                <div class="card-row">
+                    <span>Parameters</span>
+                    <span class="highlight">163M</span>
+                </div>
+                <div class="card-row">
+                    <span>Format</span>
+                    <span class="highlight">safetensors</span>
+                </div>
+            </div>
+        </div>
+    </div>
+   <div class="container">
+        <div id="skeleton6" class="skeleton-text" style="height:30px; margin-top: 5px; width: 20%;"></div>
+        <h2 id="charttext" style="margin-top: 20px;">Training data</h2>
+        <div id="skeleton7" class="skeleton-text" style="height:500px; margin-top: 5px; width: 100%;"></div>
+        <canvas id="myChart"></canvas>
+    </div>
+  <script>
+        const ctx = document.getElementById('myChart').getContext('2d');
+const myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['Step 100', 'Step 200', 'Step 300', 'Step 400', 'Step 500'], // Labels for each step
+        datasets: [{
+            label: 'Training Loss Over Steps',
+            data: [1.2521, 1.2161, 1.0687, 1.0859, 0.9698], // Corresponding loss values
+            borderColor: '#4caf50',
+            backgroundColor: 'rgba(76, 175, 80, 0.2)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false, // Ensures the graph resizes without distortion
+        scales: {
+            x: {
+                grid: {
+                    color: '#333'
+                }
+            },
+            y: {
+                grid: {
+                    color: '#333'
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                labels: {
+                    color: '#fff'
+                }
+            }
+        },
+        elements: {
+            line: {
+                tension: 0.4
+            }
+        }
+    }
+});
+
+    </script>
+  
+  
+  <script>
+ document.addEventListener("DOMContentLoaded", function () {
+    // Select elements by ID
+    const heading = document.getElementById("arptronTitle");
+    const copy = document.getElementById("copy");
+    const subtext = document.getElementById("experimentTag");
+    const card1 = document.getElementById("card1");
+    const card2 = document.getElementById("card2");
+    const card3 = document.getElementById("card3");
+    const charttext = document.getElementById("charttext");
+    const myChart = document.getElementById("myChart");
+    const skeleton1 = document.getElementById("skeleton1");
+    const skeleton2 = document.getElementById("skeleton2");
+    const skeleton3 = document.getElementById("skeleton3");
+    const skeleton4 = document.getElementById("skeleton4");
+    const skeleton5 = document.getElementById("skeleton5");
+    const skeleton6 = document.getElementById("skeleton6");
+    const skeleton7 = document.getElementById("skeleton7");
+
+    // Initially hide
+    heading.style.display = "none";
+    copy.style.display = "none";
+    subtext.style.display = "none";
+    card1.style.display = "none";
+    card2.style.display = "none";
+    card3.style.display = "none";
+    charttext.style.display = "none";
+    myChart.style.display = "none";
+
+
+    // Show heading after a delay and hide first skeleton
+    setTimeout(() => {
+        heading.style.display = "block";
+        copy.style.display = "block";
+        skeleton1.style.display = "none";
+    }, 1000); // Adjust timing as needed
+
+    // Show subtext after another delay and hide second skeleton
+    setTimeout(() => {
+        subtext.style.display = "block";
+        skeleton2.style.display = "none";
+    }, 1300); // Adjust timing as needed
+   
+   setTimeout(() => {
+        card1.style.display = "block";
+        skeleton3.style.display = "none";
+    }, 1600); // Adjust timing as needed
+   
+   setTimeout(() => {
+        card2.style.display = "block";
+        skeleton4.style.display = "none";
+    }, 1800); // Adjust timing as needed
+   
+   setTimeout(() => {
+        card3.style.display = "block";
+        skeleton5.style.display = "none";
+    }, 2000); // Adjust timing as needed
+   
+   setTimeout(() => {
+        charttext.style.display = "block";
+        skeleton6.style.display = "none";
+    }, 2200); // Adjust timing as needed
+   
+   setTimeout(() => {
+        myChart.style.display = "block";
+        skeleton7.style.display = "none";
+    }, 2400); // Adjust timing as needed
+});
+  </script>
+  
+  
+</body>
+</html>
